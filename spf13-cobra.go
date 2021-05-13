@@ -22,6 +22,7 @@ func Spf13CobraHelpFunc(rootCmd *cobra.Command) func(*cobra.Command, []string) {
 		ret += spf13CobraGenerateDescriptionTemplate(cmd.Long)
 		ret += spf13CobraGenerateCommandsTemplate(cmd.Commands())
 		ret += spf13CobraGenerateFlagsTemplate(cmd.Flags())
+		ret += "\n"
 
 		pterm.Print(ret)
 	}
