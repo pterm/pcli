@@ -9,11 +9,19 @@ import (
 	"github.com/spf13/pflag"
 )
 
+var rootCmd *cobra.Command
+
+// SetRootCmd sets your rootCmd.
+func SetRootCmd(cmd *cobra.Command) {
+	rootCmd = cmd
+	rootCmd.AddCommand(ptermCICmd)
+}
+
 // generateMarkdown generates a help document written in markdown for a command.
-func generateMarkdown(cmd, rootCmd *cobra.Command) (md string) {
+func generateMarkdown(cmd *cobra.Command) (md string) {
 	pterm.DisableColor()
 	md += pterm.Sprintfln("# %s", cmd.CommandPath())
-	md += generateUsageTemplate(cmd, rootCmd)
+	md += generateUsageTemplate(cmd)
 	md += pterm.Sprintfln("\n## Description\n\n```\n%s\n```", cmd.Long)
 
 	if len(cmd.Commands()) > 0 {
@@ -57,16 +65,16 @@ func generateMarkdown(cmd, rootCmd *cobra.Command) (md string) {
 }
 
 // GenerateMarkdownDocs walks trough every subcommand of rootCmd and creates a documentation written in Markdown for it.
-func GenerateMarkdownDocs(command, rootCmd *cobra.Command) (markdown []string) {
-	markdown = append(markdown, generateMarkdown(rootCmd, rootCmd))
+func GenerateMarkdownDocs(command *cobra.Command) (markdown []string) {
+	markdown = append(markdown, generateMarkdown(rootCmd))
 	for _, cmd := range command.Commands() {
-		markdown = append(markdown, generateMarkdown(cmd, rootCmd))
-		GenerateMarkdownDocs(cmd, rootCmd)
+		markdown = append(markdown, generateMarkdown(cmd))
+		GenerateMarkdownDocs(cmd)
 	}
 	return
 }
 
-func generateUsageTemplate(cmd, rootCmd *cobra.Command) string {
+func generateUsageTemplate(cmd *cobra.Command) string {
 	var ret string
 
 	if cmd.Short != "" {
