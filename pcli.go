@@ -98,6 +98,9 @@ func generateCommandsTemplate(commands []*cobra.Command) string {
 		ret += HelpSectionPrinter("Commands")
 		data := pterm.TableData{}
 		for _, command := range commands {
+			if command.Hidden {
+				continue
+			}
 			data = append(data, []string{command.Use + " " + strings.Join(command.Aliases, " "), command.Short})
 		}
 		result, _ := pterm.DefaultTable.WithData(data).Srender()
