@@ -109,7 +109,8 @@ func walkOverExt(path, exts string, f func(path string)) {
 }
 
 func getPathTo(file string) string {
-	return filepath.Join(rootPath, file)
+	dir, _ := os.Getwd()
+	return filepath.Join(dir, file)
 }
 
 func updateSidebar(docs []string) {
