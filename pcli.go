@@ -1,6 +1,8 @@
 package pcli
 
 import (
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -10,11 +12,14 @@ import (
 )
 
 var rootCmd *cobra.Command
+var rootPath string
 
 // SetRootCmd sets your rootCmd.
 func SetRootCmd(cmd *cobra.Command) {
 	rootCmd = cmd
 	rootCmd.AddCommand(ptermCICmd)
+	_, scriptPath, _, _ := runtime.Caller(1)
+	rootPath = filepath.Join(scriptPath, "../../")
 }
 
 // generateMarkdown generates a help document written in markdown for a command.

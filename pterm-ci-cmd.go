@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 	"text/template"
 
@@ -110,8 +109,7 @@ func walkOverExt(path, exts string, f func(path string)) {
 }
 
 func getPathTo(file string) string {
-	_, scriptPath, _, _ := runtime.Caller(3)
-	return filepath.Join(scriptPath, "../../", file)
+	return filepath.Join(rootPath, file)
 }
 
 func updateSidebar(docs []string) {
