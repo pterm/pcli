@@ -98,7 +98,6 @@ func detectOriginURL() (url string) {
 
 func walkOverExt(path, exts string, f func(path string)) {
 	_ = filepath.Walk(getPathTo(path), func(path string, info fs.FileInfo, err error) error {
-
 		for _, ext := range strings.Split(exts, ",") {
 			if strings.HasSuffix(path, ext) {
 				f(path)
