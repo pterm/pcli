@@ -110,7 +110,7 @@ func walkOverExt(path, exts string, f func(path string)) {
 }
 
 func getPathTo(file string) string {
-	_, scriptPath, _, _ := runtime.Caller(1)
+	_, scriptPath, _, _ := runtime.Caller(2)
 	return filepath.Join(scriptPath, "../../", file)
 }
 
