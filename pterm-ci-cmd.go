@@ -26,11 +26,11 @@ It should not be used outside the development of this tool.`,
 		markdownDocs := GenerateMarkdownDocs(rootCmd)
 
 		pterm.Fatal.PrintOnError(os.RemoveAll(getPathTo("/docs/commands")))
-		pterm.Fatal.PrintOnError(os.MkdirAll(getPathTo("/docs/commands"), 0600))
+		pterm.Fatal.PrintOnError(os.MkdirAll(getPathTo("/docs/commands"), 0777))
 
 		for _, doc := range markdownDocs {
 			docName := strings.ReplaceAll(strings.TrimSpace(strings.TrimLeft(strings.Split(doc, "\n")[0], "# ")), " ", "_")
-			pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo(pterm.Sprintf("/docs/commands/%s.md", docName)), []byte(doc), 0600))
+			pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo(pterm.Sprintf("/docs/commands/%s.md", docName)), []byte(doc), 0777))
 		}
 
 		project := struct {
@@ -59,18 +59,18 @@ It should not be used outside the development of this tool.`,
 			content := string(contentBytes)
 			tmpl, err := template.New(filepath.Base(path)).Parse(content)
 			pterm.Fatal.PrintOnError(err)
-			file, err := os.OpenFile(strings.ReplaceAll(path, ".template", ""), os.O_RDWR, 0600)
+			file, err := os.OpenFile(strings.ReplaceAll(path, ".template", ""), os.O_RDWR, 0777)
 			pterm.Fatal.PrintOnError(err)
 			pterm.Fatal.PrintOnError(tmpl.Execute(file, project))
 			pterm.Fatal.PrintOnError(file.Close())
-			pterm.Fatal.PrintOnError(ioutil.WriteFile(path, []byte(content), 0600))
+			pterm.Fatal.PrintOnError(ioutil.WriteFile(path, []byte(content), 0777))
 		})
 
 		updateSidebar(markdownDocs)
 		input, err := ioutil.ReadFile(getPathTo("/README.md"))
 		pterm.Fatal.PrintOnError(err)
 
-		err = ioutil.WriteFile(getPathTo("/docs/README.md"), input, 0600)
+		err = ioutil.WriteFile(getPathTo("/docs/README.md"), input, 0777)
 		pterm.Fatal.PrintOnError(err)
 	},
 	Hidden: true,
@@ -136,5 +136,5 @@ func updateSidebar(docs []string) {
 
 	newSidebarContent += after
 
-	pterm.Fatal.PrintOnError(ioutil.WriteFile(sidebarPath, []byte(newSidebarContent), 0600))
+	pterm.Fatal.PrintOnError(ioutil.WriteFile(sidebarPath, []byte(newSidebarContent), 0777))
 }
