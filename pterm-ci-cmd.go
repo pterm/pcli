@@ -26,7 +26,7 @@ It should not be used outside the development of this tool.`,
 		started := time.Now()
 		originURL := detectOriginURL()
 
-		if !strings.Contains(originURL, "cli-template") {
+		if !strings.Contains(originURL, "/cli-template") {
 			if _, err := os.Stat(getPathTo("./setup/main.go")); err == nil {
 				pterm.DefaultSection.Println("Running template setup")
 				cmd := exec.Command("go", "run", getPathTo("./setup/main.go"))
@@ -68,9 +68,11 @@ It should not be used outside the development of this tool.`,
 		project.URL = pterm.Sprintf("https://github.com/%s", project.ProjectPath)
 		project.Short = rootCmd.Short
 		project.Long = rootCmd.Long
-		project.InstallCommandWindows = `iwr -useb instl.sh/pterm/cli-template/windows | iex`
-		project.InstallCommandLinux = `curl -s https://instl.sh/pterm/cli-template/linux | sudo bash`
-		project.InstallCommandMacOS = `/bin/bash -c "$(curl -fsSL instl.sh/pterm/cli-template/macos)"`
+
+		project.InstallCommandWindows = pterm.Sprintf(`iwr -useb instl.sh/%s/windows | iex`, project.ProjectPath)
+		project.InstallCommandLinux = pterm.Sprintf(`curl -s https://instl.sh/%s/linux | sudo bash`, project.ProjectPath)
+		project.InstallCommandMacOS = pterm.Sprintf(`/bin/bash -c "$(curl -fsSL instl.sh/%s/macos)"`, project.ProjectPath)
+
 		project.GitHubPagesURL = pterm.Sprintf("https://%s.github.io/%s", project.UserName, project.RepoName)
 
 		pterm.DefaultSection.Println("Processing '*.template.[md|html|js|css]' files")
