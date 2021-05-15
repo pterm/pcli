@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -22,6 +23,23 @@ var ptermCICmd = &cobra.Command{
 It should not be used outside the development of this tool.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		pterm.Info.Printfln("Running PtermCI for %s", rootCmd.Name())
+		started := time.Now()
+		originURL := detectOriginURL()
+
+		if !strings.Contains(originURL, "cli-template") {
+			if _, err := os.Stat(getPathTo("./setup/main.go")); err == nil {
+				pterm.DefaultSection.Println("Running template setup")
+				cmd := exec.Command("go", "run", getPathTo("./setup/main.go"))
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				pterm.Fatal.PrintOnError(cmd.Run())
+				pterm.DefaultSection.Println("Deleting setup script")
+				pterm.Fatal.PrintOnError(os.RemoveAll(getPathTo("./setup")))
+			}
+		}
+
+		pterm.DefaultSection.Println("Generating markdown documentation")
+
 		markdownDoc := GenerateMarkdownDoc(rootCmd)
 		pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo("/docs/docs.md"), []byte(markdownDoc.Markdown), 0777))
 
@@ -35,7 +53,6 @@ It should not be used outside the development of this tool.`,
 			Long        string
 		}{}
 
-		originURL := detectOriginURL()
 		projectParts := strings.Split(strings.TrimPrefix(originURL, "https://github.com/"), "/")
 
 		project.UserName = projectParts[0]
@@ -45,6 +62,8 @@ It should not be used outside the development of this tool.`,
 		project.URL = pterm.Sprintf("https://github.com/%s", project.ProjectPath)
 		project.Short = rootCmd.Short
 		project.Long = rootCmd.Long
+
+		pterm.DefaultSection.Println("Processing '*.template.[md|html|js|css]' files")
 
 		walkOverExt("", ".template.md,.template.html,.template.js,.template.css", func(path string) {
 			contentBytes, err := ioutil.ReadFile(path)
@@ -57,11 +76,15 @@ It should not be used outside the development of this tool.`,
 			pterm.Fatal.PrintOnError(file.Close())
 		})
 
+		pterm.DefaultSection.Println("Copying README.md to docs/REAMDE.md")
+
 		input, err := ioutil.ReadFile(getPathTo("/README.md"))
 		pterm.Fatal.PrintOnError(err)
 
 		err = ioutil.WriteFile(getPathTo("/docs/README.md"), input, 0777)
 		pterm.Fatal.PrintOnError(err)
+
+		pterm.Success.Printfln("The PTerm-CI System took %v to complete.", time.Since(started))
 	},
 	Hidden: true,
 }
