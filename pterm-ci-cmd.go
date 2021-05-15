@@ -51,6 +51,10 @@ It should not be used outside the development of this tool.`,
 			URL         string
 			Short       string
 			Long        string
+
+			InstallCommandWindows string
+			InstallCommandLinux   string
+			InstallCommandMacOS   string
 		}{}
 
 		projectParts := strings.Split(strings.TrimPrefix(originURL, "https://github.com/"), "/")
@@ -62,6 +66,9 @@ It should not be used outside the development of this tool.`,
 		project.URL = pterm.Sprintf("https://github.com/%s", project.ProjectPath)
 		project.Short = rootCmd.Short
 		project.Long = rootCmd.Long
+		project.InstallCommandWindows = `iwr -useb instl.sh/pterm/cli-template/windows | iex`
+		project.InstallCommandLinux = `curl -s https://instl.sh/pterm/cli-template/linux | sudo bash`
+		project.InstallCommandMacOS = `/bin/bash -c "$(curl -fsSL instl.sh/pterm/cli-template/macos)"`
 
 		pterm.DefaultSection.Println("Processing '*.template.[md|html|js|css]' files")
 
