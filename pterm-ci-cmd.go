@@ -52,6 +52,8 @@ It should not be used outside the development of this tool.`,
 			Short       string
 			Long        string
 
+			GitHubPagesURL string
+
 			InstallCommandWindows string
 			InstallCommandLinux   string
 			InstallCommandMacOS   string
@@ -69,6 +71,7 @@ It should not be used outside the development of this tool.`,
 		project.InstallCommandWindows = `iwr -useb instl.sh/pterm/cli-template/windows | iex`
 		project.InstallCommandLinux = `curl -s https://instl.sh/pterm/cli-template/linux | sudo bash`
 		project.InstallCommandMacOS = `/bin/bash -c "$(curl -fsSL instl.sh/pterm/cli-template/macos)"`
+		project.GitHubPagesURL = pterm.Sprintf("https://%s.github.io/%s", project.UserName, project.RepoName)
 
 		pterm.DefaultSection.Println("Processing '*.template.[md|html|js|css]' files")
 
