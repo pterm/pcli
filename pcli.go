@@ -1,8 +1,6 @@
 package pcli
 
 import (
-	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 
@@ -12,13 +10,10 @@ import (
 )
 
 var rootCmd *cobra.Command
-var rootPath string
 
 // SetRootCmd sets your rootCmd.
 func SetRootCmd(cmd *cobra.Command) {
 	rootCmd = cmd
-	_, scriptPath, _, _ := runtime.Caller(1)
-	rootPath = filepath.Join(scriptPath, "../../")
 }
 
 // GetCiCommand returns a custom crafted CI command. This must be used when using https://github.com/pterm/cli-template.
@@ -40,25 +35,14 @@ func generateMarkdownTree(cmd *cobra.Command) (md string) {
 		return
 	}
 	pterm.DisableColor()
-	md += pterm.Sprintfln("# %s", cmd.CommandPath())
+	if cmd.CommandPath() != rootCmd.CommandPath() {
+		md += pterm.Sprintfln("# ... %s", strings.TrimSpace(strings.TrimLeft(cmd.CommandPath(), rootCmd.Use)))
+		md += pterm.Sprintfln("`%s`", cmd.CommandPath())
+	} else {
+		md += pterm.Sprintfln("# %s", cmd.CommandPath())
+	}
 	md += generateUsageTemplate(cmd)
 	md += pterm.Sprintfln("\n## Description\n\n```\n%s\n```", cmd.Long)
-
-	if len(cmd.Commands()) > 0 {
-		md += HelpSectionPrinter("Commands")
-		var data [][]string
-		for _, command := range cmd.Commands() {
-			if command.Hidden {
-				continue
-			}
-			data = append(data, []string{command.Use + " " + strings.Join(command.Aliases, " "), command.Short})
-		}
-		md += "|Command|Usage|\n"
-		md += "|-------|-----|\n"
-		for _, d := range data {
-			md += pterm.Sprintfln("|`%s`|%s|", d[0], d[1])
-		}
-	}
 
 	if cmd.Flags().HasFlags() {
 		md += HelpSectionPrinter("Flags")
@@ -80,6 +64,22 @@ func generateMarkdownTree(cmd *cobra.Command) (md string) {
 		}
 	}
 
+	if len(cmd.Commands()) > 0 {
+		md += HelpSectionPrinter("Commands")
+		var data [][]string
+		for _, command := range cmd.Commands() {
+			if command.Hidden {
+				continue
+			}
+			data = append(data, []string{command.CommandPath(), command.Short})
+		}
+		md += "|Command|Usage|\n"
+		md += "|-------|-----|\n"
+		for _, d := range data {
+			md += pterm.Sprintfln("|`%s`|%s|", d[0], d[1])
+		}
+	}
+
 	for _, c := range cmd.Commands() {
 		md += generateMarkdownTree(c)
 	}
@@ -97,25 +97,14 @@ type MarkdownDocument struct {
 	Filename string
 }
 
-// GenerateMarkdownDocs walks trough every subcommand of rootCmd and creates a documentation written in Markdown for it.
-func GenerateMarkdownDocs(command *cobra.Command) (markdown []MarkdownDocument) {
+// GenerateMarkdownDoc walks trough every subcommand of rootCmd and creates a documentation written in Markdown for it.
+func GenerateMarkdownDoc(command *cobra.Command) (markdown MarkdownDocument) {
 	if !command.Hidden {
-		markdown = append(markdown, MarkdownDocument{
-			Name:     command.Name(),
+		return MarkdownDocument{
+			Name:     command.CommandPath(),
 			Markdown: generateMarkdown(command),
 			Command:  command,
-			Filename: strings.ReplaceAll(command.Name(), " ", "_"),
-		})
-	}
-	for _, cmd := range command.Commands() {
-		if !cmd.Hidden {
-			markdown = append(markdown, MarkdownDocument{
-				Name:     cmd.Name(),
-				Markdown: generateMarkdown(cmd),
-				Command:  cmd,
-				Filename: strings.ReplaceAll(cmd.Name(), " ", "_"),
-			})
-			GenerateMarkdownDocs(cmd)
+			Filename: strings.ReplaceAll(command.CommandPath(), " ", "_"),
 		}
 	}
 	return

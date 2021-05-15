@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"text/template"
 
@@ -23,14 +22,8 @@ var ptermCICmd = &cobra.Command{
 It should not be used outside the development of this tool.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		pterm.Info.Printfln("Running PtermCI for %s", rootCmd.Name())
-		markdownDocs := GenerateMarkdownDocs(rootCmd)
-
-		pterm.Fatal.PrintOnError(os.RemoveAll(getPathTo("/docs/commands")))
-		pterm.Fatal.PrintOnError(os.MkdirAll(getPathTo("/docs/commands"), 0777))
-
-		for _, doc := range markdownDocs {
-			pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo(pterm.Sprintf("/docs/commands/%s.md", doc.Name)), []byte(doc.Markdown), 0777))
-		}
+		markdownDoc := GenerateMarkdownDoc(rootCmd)
+		pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo("/docs/docs.md"), []byte(markdownDoc.Markdown), 0777))
 
 		project := struct {
 			ProjectPath string
@@ -64,7 +57,6 @@ It should not be used outside the development of this tool.`,
 			pterm.Fatal.PrintOnError(file.Close())
 		})
 
-		updateSidebar(markdownDocs)
 		input, err := ioutil.ReadFile(getPathTo("/README.md"))
 		pterm.Fatal.PrintOnError(err)
 
@@ -108,30 +100,4 @@ func walkOverExt(path, exts string, f func(path string)) {
 func getPathTo(file string) string {
 	// dir, _ := os.Getwd()
 	return filepath.Join("./", file)
-}
-
-func updateSidebar(docs []MarkdownDocument) {
-	sidebarPath := getPathTo("./docs/_sidebar.md")
-	sidebarContentByte, err := ioutil.ReadFile(sidebarPath)
-	pterm.Fatal.PrintOnError(err)
-
-	sidebarContent := string(sidebarContentByte)
-
-	beforeRegex := regexp.MustCompile(`(?ms).*<!-- <<<PTERM-CI-COMMANDS-START>>> -->`)
-	afterRegex := regexp.MustCompile(`(?ms)<!-- <<<PTERM-CI-COMMANDS-END>>> -->.*`)
-
-	before := beforeRegex.FindAllString(sidebarContent, 1)[0]
-	after := afterRegex.FindAllString(sidebarContent, 1)[0]
-
-	var newSidebarContent string
-
-	newSidebarContent += before + "\n"
-
-	for _, doc := range docs {
-		newSidebarContent += "  - [" + doc.Name + "](commands/" + doc.Filename + ".md)\n"
-	}
-
-	newSidebarContent += after
-
-	pterm.Fatal.PrintOnError(ioutil.WriteFile(sidebarPath, []byte(newSidebarContent), 0777))
 }
