@@ -22,8 +22,19 @@ func SetRootCmd(cmd *cobra.Command) {
 	rootPath = filepath.Join(scriptPath, "../../")
 }
 
-// generateMarkdown generates a help document written in markdown for a command.
 func generateMarkdown(cmd *cobra.Command) (md string) {
+	md += generateMarkdownTree(cmd)
+	md += "\n\n---\n"
+	md += "> **Documentation automatically generated with [PTerm](https://github.com/pterm/cli-template) on " + time.Now().Format("02 January 2006") + "**\n"
+
+	return
+}
+
+// generateMarkdownTree generates a help document written in markdown for a command.
+func generateMarkdownTree(cmd *cobra.Command) (md string) {
+	if cmd.Hidden {
+		return
+	}
 	pterm.DisableColor()
 	md += pterm.Sprintfln("# %s", cmd.CommandPath())
 	md += generateUsageTemplate(cmd)
@@ -60,20 +71,40 @@ func generateMarkdown(cmd *cobra.Command) (md string) {
 		for _, d := range flagTableData {
 			md += pterm.Sprintfln("|`%s`|%s|", d[0], d[1])
 		}
-
-		md += "---\n\n"
-		md += "###### Automatically generated with [PTerm](https://github.com/pterm/cli-template) on " + time.Now().Format("02 January 2006") + "\n"
 	}
+
+	for _, c := range cmd.Commands() {
+		md += generateMarkdownTree(c)
+	}
+
 	pterm.EnableColor()
 
 	return
 }
 
+// MarkdownDocument contains the command and it's markdown documentation.
+type MarkdownDocument struct {
+	Name     string
+	Markdown string
+	Command  *cobra.Command
+	Filename string
+}
+
 // GenerateMarkdownDocs walks trough every subcommand of rootCmd and creates a documentation written in Markdown for it.
-func GenerateMarkdownDocs(command *cobra.Command) (markdown []string) {
-	markdown = append(markdown, generateMarkdown(rootCmd))
+func GenerateMarkdownDocs(command *cobra.Command) (markdown []MarkdownDocument) {
+	markdown = append(markdown, MarkdownDocument{
+		Name:     command.Name(),
+		Markdown: generateMarkdown(rootCmd),
+		Command:  rootCmd,
+		Filename: strings.ReplaceAll(rootCmd.Name(), " ", "_"),
+	})
 	for _, cmd := range command.Commands() {
-		markdown = append(markdown, generateMarkdown(cmd))
+		markdown = append(markdown, MarkdownDocument{
+			Name:     cmd.Name(),
+			Markdown: generateMarkdown(cmd),
+			Command:  cmd,
+			Filename: strings.ReplaceAll(cmd.Name(), " ", "_"),
+		})
 		GenerateMarkdownDocs(cmd)
 	}
 	return

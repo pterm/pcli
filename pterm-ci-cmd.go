@@ -29,8 +29,7 @@ It should not be used outside the development of this tool.`,
 		pterm.Fatal.PrintOnError(os.MkdirAll(getPathTo("/docs/commands"), 0777))
 
 		for _, doc := range markdownDocs {
-			docName := strings.ReplaceAll(strings.TrimSpace(strings.TrimLeft(strings.Split(doc, "\n")[0], "# ")), " ", "_")
-			pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo(pterm.Sprintf("/docs/commands/%s.md", docName)), []byte(doc), 0777))
+			pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo(pterm.Sprintf("/docs/commands/%s.md", doc.Name)), []byte(doc.Markdown), 0777))
 		}
 
 		project := struct {
@@ -112,7 +111,7 @@ func getPathTo(file string) string {
 	return filepath.Join("./", file)
 }
 
-func updateSidebar(docs []string) {
+func updateSidebar(docs []MarkdownDocument) {
 	sidebarPath := getPathTo("./docs/_sidebar.md")
 	sidebarContentByte, err := ioutil.ReadFile(sidebarPath)
 	pterm.Fatal.PrintOnError(err)
@@ -130,8 +129,7 @@ func updateSidebar(docs []string) {
 	newSidebarContent += before + "\n"
 
 	for _, doc := range docs {
-		docName := strings.ReplaceAll(strings.TrimSpace(strings.TrimLeft(strings.Split(doc, "\n")[0], "# ")), " ", "_")
-		newSidebarContent += "  - [" + docName + "](commands/" + docName + ".md)\n"
+		newSidebarContent += "  - [" + doc.Name + "](commands/" + doc.Filename + ".md)\n"
 	}
 
 	newSidebarContent += after
