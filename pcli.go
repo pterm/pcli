@@ -17,9 +17,13 @@ var rootPath string
 // SetRootCmd sets your rootCmd.
 func SetRootCmd(cmd *cobra.Command) {
 	rootCmd = cmd
-	rootCmd.AddCommand(ptermCICmd)
 	_, scriptPath, _, _ := runtime.Caller(1)
 	rootPath = filepath.Join(scriptPath, "../../")
+}
+
+// GetCiCommand returns a custom crafted CI command. This must be used when using https://github.com/pterm/cli-template.
+func GetCiCommand() *cobra.Command {
+	return ptermCICmd
 }
 
 func generateMarkdown(cmd *cobra.Command) (md string) {
@@ -92,11 +96,14 @@ type MarkdownDocument struct {
 
 // GenerateMarkdownDocs walks trough every subcommand of rootCmd and creates a documentation written in Markdown for it.
 func GenerateMarkdownDocs(command *cobra.Command) (markdown []MarkdownDocument) {
+	if command.Hidden {
+		return
+	}
 	markdown = append(markdown, MarkdownDocument{
 		Name:     command.Name(),
-		Markdown: generateMarkdown(rootCmd),
-		Command:  rootCmd,
-		Filename: strings.ReplaceAll(rootCmd.Name(), " ", "_"),
+		Markdown: generateMarkdown(command),
+		Command:  command,
+		Filename: strings.ReplaceAll(command.Name(), " ", "_"),
 	})
 	for _, cmd := range command.Commands() {
 		markdown = append(markdown, MarkdownDocument{

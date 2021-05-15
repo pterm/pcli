@@ -53,16 +53,15 @@ It should not be used outside the development of this tool.`,
 		project.Short = rootCmd.Short
 		project.Long = rootCmd.Long
 
-		walkOverExt("./docs", ".template.md", func(path string) {
+		walkOverExt("./docs", ".template.md,.template.html,.template.js,.template.css", func(path string) {
 			contentBytes, err := ioutil.ReadFile(path)
 			content := string(contentBytes)
 			tmpl, err := template.New(filepath.Base(path)).Parse(content)
 			pterm.Fatal.PrintOnError(err)
-			file, err := os.OpenFile(strings.ReplaceAll(path, ".template", ""), os.O_RDWR, 0777)
+			file, err := os.OpenFile(strings.ReplaceAll(path, ".template", ""), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
 			pterm.Fatal.PrintOnError(err)
 			pterm.Fatal.PrintOnError(tmpl.Execute(file, project))
 			pterm.Fatal.PrintOnError(file.Close())
-			pterm.Fatal.PrintOnError(ioutil.WriteFile(path, []byte(content), 0777))
 		})
 
 		updateSidebar(markdownDocs)
