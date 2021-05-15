@@ -48,6 +48,9 @@ func generateMarkdownTree(cmd *cobra.Command) (md string) {
 		md += HelpSectionPrinter("Commands")
 		var data [][]string
 		for _, command := range cmd.Commands() {
+			if command.Hidden {
+				continue
+			}
 			data = append(data, []string{command.Use + " " + strings.Join(command.Aliases, " "), command.Short})
 		}
 		md += "|Command|Usage|\n"
