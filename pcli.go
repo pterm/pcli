@@ -96,23 +96,24 @@ type MarkdownDocument struct {
 
 // GenerateMarkdownDocs walks trough every subcommand of rootCmd and creates a documentation written in Markdown for it.
 func GenerateMarkdownDocs(command *cobra.Command) (markdown []MarkdownDocument) {
-	if command.Hidden {
-		return
-	}
-	markdown = append(markdown, MarkdownDocument{
-		Name:     command.Name(),
-		Markdown: generateMarkdown(command),
-		Command:  command,
-		Filename: strings.ReplaceAll(command.Name(), " ", "_"),
-	})
-	for _, cmd := range command.Commands() {
+	if !command.Hidden {
 		markdown = append(markdown, MarkdownDocument{
-			Name:     cmd.Name(),
-			Markdown: generateMarkdown(cmd),
-			Command:  cmd,
-			Filename: strings.ReplaceAll(cmd.Name(), " ", "_"),
+			Name:     command.Name(),
+			Markdown: generateMarkdown(command),
+			Command:  command,
+			Filename: strings.ReplaceAll(command.Name(), " ", "_"),
 		})
-		GenerateMarkdownDocs(cmd)
+	}
+	for _, cmd := range command.Commands() {
+		if !cmd.Hidden {
+			markdown = append(markdown, MarkdownDocument{
+				Name:     cmd.Name(),
+				Markdown: generateMarkdown(cmd),
+				Command:  cmd,
+				Filename: strings.ReplaceAll(cmd.Name(), " ", "_"),
+			})
+			GenerateMarkdownDocs(cmd)
+		}
 	}
 	return
 }
