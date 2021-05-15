@@ -46,7 +46,7 @@ It should not be used outside the development of this tool.`,
 		project.Short = rootCmd.Short
 		project.Long = rootCmd.Long
 
-		walkOverExt("./docs", ".template.md,.template.html,.template.js,.template.css", func(path string) {
+		walkOverExt("", ".template.md,.template.html,.template.js,.template.css", func(path string) {
 			contentBytes, err := ioutil.ReadFile(path)
 			content := string(contentBytes)
 			tmpl, err := template.New(filepath.Base(path)).Parse(content)
