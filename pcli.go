@@ -42,7 +42,14 @@ func generateMarkdownTree(cmd *cobra.Command) (md string) {
 		md += pterm.Sprintfln("# %s", cmd.CommandPath())
 	}
 	md += generateUsageTemplate(cmd)
-	md += pterm.Sprintfln("\n## Description\n\n```\n%s\n```", cmd.Long)
+
+	if cmd.Long != "" {
+		md += pterm.Sprintfln("\n## Description\n\n```\n%s\n```", cmd.Long)
+	}
+
+	if cmd.Example != "" {
+		md += pterm.Sprintfln("## Examples\n\n```bash\n%s\n```", cmd.Example)
+	}
 
 	if cmd.Flags().HasFlags() {
 		md += HelpSectionPrinter("Flags")
