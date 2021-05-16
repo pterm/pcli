@@ -1,6 +1,8 @@
 package pcli
 
 import (
+	"io"
+
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -48,7 +50,7 @@ func GlobalNormalizationFunc() func(f *pflag.FlagSet, name string) pflag.Normali
 
 // HelpTemplate is a drop in replacement for spf13/cobra `HelpTemplate`
 func HelpTemplate() string {
-	return rootCmd.HelpTemplate()
+	return ""
 }
 
 // UsageFunc is a drop in replacement for spf13/cobra `UsageFunc`
@@ -58,10 +60,22 @@ func UsageFunc() func(*cobra.Command) error {
 
 // UsageTemplate is a drop in replacement for spf13/cobra `UsageTemplate`
 func UsageTemplate() string {
-	return rootCmd.UsageTemplate()
+	return ""
 }
 
 // VersionTemplate is a drop in replacement for spf13/cobra `VersionTemplate`
 func VersionTemplate() string {
 	return pterm.Info.Sprintfln("%s is on version: %s", rootCmd.Name(), pterm.Magenta(rootCmd.Version))
+}
+
+// Err is a drop in replacement for spf13/cobra `Err`
+func Err() io.Writer {
+	return errorWriter{}
+}
+
+type errorWriter struct{}
+
+func (errorWriter) Write(p []byte) (n int, err error) {
+	pterm.Error.WithMessageStyle(pterm.NewStyle()).WithShowLineNumber(false).Println(string(p))
+	return len(p), nil
 }

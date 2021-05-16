@@ -1,6 +1,7 @@
 package pcli
 
 import (
+	"io/ioutil"
 	"strings"
 	"time"
 
@@ -14,6 +15,20 @@ var rootCmd *cobra.Command
 // SetRootCmd sets your rootCmd.
 func SetRootCmd(cmd *cobra.Command) {
 	rootCmd = cmd
+}
+
+// Setup replaces some cobra functions with pcli functions for nicer output.
+func Setup() {
+	rootCmd.AddCommand(GetCiCommand())
+	rootCmd.SetFlagErrorFunc(FlagErrorFunc())
+	rootCmd.SetGlobalNormalizationFunc(GlobalNormalizationFunc())
+	rootCmd.SetHelpFunc(HelpFunc())
+	rootCmd.SetHelpTemplate(HelpTemplate())
+	rootCmd.SetUsageFunc(UsageFunc())
+	rootCmd.SetUsageTemplate(UsageTemplate())
+	rootCmd.SetVersionTemplate(VersionTemplate())
+	rootCmd.SetOut(ioutil.Discard)
+	rootCmd.SetErr(Err())
 }
 
 // GetCiCommand returns a custom crafted CI command. This must be used when using https://github.com/pterm/cli-template.

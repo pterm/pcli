@@ -92,9 +92,7 @@ It should not be used outside the development of this tool.`,
 
 		input, err := ioutil.ReadFile(getPathTo("/README.md"))
 		pterm.Fatal.PrintOnError(err)
-
-		err = ioutil.WriteFile(getPathTo("/docs/README.md"), input, 0777)
-		pterm.Fatal.PrintOnError(err)
+		pterm.Fatal.PrintOnError(ioutil.WriteFile(getPathTo("/docs/README.md"), input, 0777))
 
 		pterm.Success.Printfln("The PTerm-CI System took %v to complete.", time.Since(started))
 	},
