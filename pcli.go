@@ -142,6 +142,17 @@ func generateDescriptionTemplate(description string) string {
 	return ret
 }
 
+func generateExamplesTemplate(cmd *cobra.Command) string {
+	var ret string
+
+	if cmd.Example != "" {
+		ret += HelpSectionPrinter("Examples")
+		ret += cmd.Example + "\n"
+	}
+
+	return ret
+}
+
 func generateCommandsTemplate(commands []*cobra.Command) string {
 	var ret string
 

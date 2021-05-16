@@ -14,6 +14,7 @@ func HelpFunc() func(*cobra.Command, []string) {
 		ret += generateTitleString(rootCmd)
 		ret += generateUsageTemplate(cmd)
 		ret += generateDescriptionTemplate(cmd.Long)
+		ret += generateExamplesTemplate(cmd)
 		ret += generateCommandsTemplate(cmd.Commands())
 		ret += generateFlagsTemplate(cmd.Flags())
 		ret += "\n"
