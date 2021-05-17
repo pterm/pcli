@@ -151,7 +151,7 @@ func generateDescriptionTemplate(description string) string {
 
 	if description != "" {
 		ret += HelpSectionPrinter("Description")
-		ret += pterm.DefaultParagraph.Sprintln(description)
+		ret += pterm.Sprintln(description)
 	}
 
 	return ret
