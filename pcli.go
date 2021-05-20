@@ -1,7 +1,6 @@
 package pcli
 
 import (
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -27,7 +26,7 @@ func Setup() {
 	rootCmd.SetUsageFunc(UsageFunc())
 	rootCmd.SetUsageTemplate(UsageTemplate())
 	rootCmd.SetVersionTemplate(VersionTemplate())
-	rootCmd.SetOut(ioutil.Discard)
+	rootCmd.SetOut(PcliOut())
 	rootCmd.SetErr(Err())
 }
 

@@ -2,6 +2,7 @@ package pcli
 
 import (
 	"io"
+	"strings"
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -77,5 +78,20 @@ type errorWriter struct{}
 
 func (errorWriter) Write(p []byte) (n int, err error) {
 	pterm.Error.WithMessageStyle(pterm.NewStyle()).WithShowLineNumber(false).Println(string(p))
+	return len(p), nil
+}
+
+// PcliOut is a drop in replacement for spf13/cobra `SetOut`
+func PcliOut() io.Writer {
+	return pcliOut{}
+}
+
+type pcliOut struct{}
+
+func (pcliOut) Write(p []byte) (n int, err error) {
+	str := string(p)
+	if strings.Contains(str, " is on version: ") {
+		pterm.Print(str)
+	}
 	return len(p), nil
 }
