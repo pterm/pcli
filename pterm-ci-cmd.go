@@ -69,9 +69,9 @@ It should not be used outside the development of this tool.`,
 		project.Short = rootCmd.Short
 		project.Long = rootCmd.Long
 
-		project.InstallCommandWindows = pterm.Sprintf(`iwr -useb instl.sh/%s/windows | iex`, project.ProjectPath)
-		project.InstallCommandLinux = pterm.Sprintf(`curl -fsSL instl.sh/%s/linux | bash`, project.ProjectPath)
-		project.InstallCommandMacOS = pterm.Sprintf(`curl -fsSL instl.sh/%s/macos | bash`, project.ProjectPath)
+		project.InstallCommandWindows = pterm.Sprintf(`iwr instl.sh/%s/windows | iex`, project.ProjectPath)
+		project.InstallCommandLinux = pterm.Sprintf(`curl -sSL instl.sh/%s/linux | sudo bash`, project.ProjectPath)
+		project.InstallCommandMacOS = pterm.Sprintf(`curl -sSL instl.sh/%s/macos | sudo bash`, project.ProjectPath)
 
 		project.GitHubPagesURL = pterm.Sprintf("https://%s.github.io/%s", project.UserName, project.RepoName)
 
