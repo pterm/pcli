@@ -1,6 +1,7 @@
 package pcli
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"runtime"
@@ -23,6 +24,13 @@ func SetRootCmd(cmd *cobra.Command) {
 	rootCmd = cmd
 }
 
+type meta struct {
+	Username string
+	Reponame string
+}
+
+var AppInfo = meta{}
+
 // Setup replaces some cobra functions with pcli functions for nicer output.
 func Setup() {
 	rootCmd.AddCommand(GetCiCommand())
@@ -37,9 +45,25 @@ func Setup() {
 	rootCmd.SetErr(Err())
 }
 
+// SetRepo must be set to your repository path (eg. pterm/cli-template).
+func SetRepo(repo string) error {
+	parts := strings.Split(repo, "/")
+	if len(parts) != 2 {
+		return errors.New("repo must be set in this pattern: username/reponame, eg.: pterm/cli-template")
+	}
+	AppInfo.Username = parts[0]
+	AppInfo.Reponame = parts[1]
+
+	return nil
+}
+
+func getRepoPath() string {
+	return AppInfo.Username + "/" + AppInfo.Reponame
+}
+
 // CheckForUpdates checks if a new version of your application is pushed, and notifies the user, if DisableUpdateChecking is true.
 func CheckForUpdates() error {
-	if !DisableUpdateChecking {
+	if !DisableUpdateChecking && AppInfo.Username != "" && AppInfo.Reponame != "" {
 		resp, err := http.Get(pterm.Sprintf("https://api.github.com/repos/%s/releases/latest", getRepoPath()))
 		if err != nil {
 			return err

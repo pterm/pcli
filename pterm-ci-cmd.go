@@ -107,7 +107,7 @@ func detectOriginURL() (url string) {
 	output := string(out)
 
 	for _, s := range strings.Split(output, "\n") {
-		s = strings.TrimSpace(strings.TrimLeft(s, "origin"))
+		s = strings.TrimSpace(strings.TrimPrefix(s, "origin"))
 		if strings.HasPrefix(s, "https://github.com/") && strings.Contains(s, "push") {
 			pterm.Debug.Printfln("Detected GitHub Repo: %s", s)
 			url = strings.TrimSpace(strings.TrimRight(s, "(push)"))
@@ -117,17 +117,6 @@ func detectOriginURL() (url string) {
 	}
 
 	return
-}
-
-func getRepo() (username, reponame string) {
-	projectParts := strings.Split(strings.TrimPrefix(detectOriginURL(), "https://github.com/"), "/")
-
-	return projectParts[0], projectParts[1]
-}
-
-func getRepoPath() string {
-	username, reponame := getRepo()
-	return pterm.Sprintf("%s/%s", username, reponame)
 }
 
 func walkOverExt(path, exts string, f func(path string)) {
