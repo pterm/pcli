@@ -15,8 +15,8 @@ import (
 
 var rootCmd *cobra.Command
 
-// EnableUpdateChecking automatically checks if a new version of your application is pushed, and notifies the user.
-var EnableUpdateChecking = true
+// DisableUpdateChecking automatically checks if a new version of your application is pushed, and notifies the user.
+var DisableUpdateChecking = false
 
 // SetRootCmd sets your rootCmd.
 func SetRootCmd(cmd *cobra.Command) {
@@ -37,9 +37,9 @@ func Setup() {
 	rootCmd.SetErr(Err())
 }
 
-// CheckForUpdates checks if a new version of your application is pushed, and notifies the user, if EnableUpdateChecking is true.
+// CheckForUpdates checks if a new version of your application is pushed, and notifies the user, if DisableUpdateChecking is true.
 func CheckForUpdates() error {
-	if EnableUpdateChecking {
+	if !DisableUpdateChecking {
 		resp, err := http.Get(pterm.Sprintf("https://api.github.com/repos/%s/releases/latest", getRepoPath()))
 		if err != nil {
 			return err
