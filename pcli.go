@@ -54,7 +54,7 @@ func CheckForUpdates() error {
 
 		tagName := gjson.Get(string(body), "tag_name").String()
 
-		if rootCmd.Version != tagName {
+		if rootCmd.Version != tagName && tagName != "" {
 			format := "A new version of %s is availble (%s)!\n"
 			format += "You can install the new version with: "
 
