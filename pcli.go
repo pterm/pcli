@@ -1,15 +1,22 @@
 package pcli
 
 import (
+	"io/ioutil"
+	"net/http"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/tidwall/gjson"
 )
 
 var rootCmd *cobra.Command
+
+// EnableUpdateChecking automatically checks if a new version of your application is pushed, and notifies the user.
+var EnableUpdateChecking = true
 
 // SetRootCmd sets your rootCmd.
 func SetRootCmd(cmd *cobra.Command) {
@@ -28,6 +35,42 @@ func Setup() {
 	rootCmd.SetVersionTemplate(VersionTemplate())
 	rootCmd.SetOut(PcliOut())
 	rootCmd.SetErr(Err())
+	CheckForUpdates()
+}
+
+// CheckForUpdates checks if a new version of your application is pushed, and notifies the user, if EnableUpdateChecking is true.
+func CheckForUpdates() error {
+	if EnableUpdateChecking {
+		resp, err := http.Get(pterm.Sprintf("https://api.github.com/repos/%s/releases/latest", getRepoPath()))
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+
+		tagName := gjson.Get(string(body), "tag_name").String()
+
+		if rootCmd.Version != tagName {
+			format := "A new version of %s is availble (%s)!\n"
+			format += "You can install the new version with: "
+
+			switch runtime.GOOS {
+			case "windows":
+				format += pterm.Magenta(pterm.Sprintf(`iwr instl.sh/%s/windows | iex`, getRepoPath()))
+			case "darwin":
+				format += pterm.Magenta(pterm.Sprintf(`curl -sSL instl.sh/%s/macos | sudo bash`, getRepoPath()))
+			default:
+				format += pterm.Magenta(pterm.Sprintf(`curl -sSL instl.sh/%s/linux | sudo bash`, getRepoPath()))
+			}
+			pterm.Info.Printfln(format, rootCmd.Name(), pterm.Magenta(tagName))
+		}
+	}
+
+	return nil
 }
 
 // GetCiCommand returns a custom crafted CI command. This must be used when using https://github.com/pterm/cli-template.

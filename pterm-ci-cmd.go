@@ -119,6 +119,17 @@ func detectOriginURL() (url string) {
 	return
 }
 
+func getRepo() (username, reponame string) {
+	projectParts := strings.Split(strings.TrimPrefix(detectOriginURL(), "https://github.com/"), "/")
+
+	return projectParts[0], projectParts[1]
+}
+
+func getRepoPath() string {
+	username, reponame := getRepo()
+	return pterm.Sprintf("%s/%s", username, reponame)
+}
+
 func walkOverExt(path, exts string, f func(path string)) {
 	_ = filepath.Walk(getPathTo(path), func(path string, info fs.FileInfo, err error) error {
 		for _, ext := range strings.Split(exts, ",") {
