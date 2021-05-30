@@ -35,7 +35,6 @@ func Setup() {
 	rootCmd.SetVersionTemplate(VersionTemplate())
 	rootCmd.SetOut(PcliOut())
 	rootCmd.SetErr(Err())
-	CheckForUpdates()
 }
 
 // CheckForUpdates checks if a new version of your application is pushed, and notifies the user, if EnableUpdateChecking is true.
