@@ -206,9 +206,22 @@ func generateUsageTemplate(cmd *cobra.Command) string {
 		ret += "\n"
 	}
 
-	ret += pterm.Sprintfln("%s [global options] command [options] [arguments...]", rootCmd.Use)
+	ret += pterm.Sprintfln("%s", pterm.LightMagenta(getParentString(cmd)))
 
 	return ret
+}
+
+func getParentString(cmd *cobra.Command) (ret string) {
+	c := cmd.Parent()
+
+	ret = cmd.Use
+
+	for c != nil {
+		ret = c.Name() + " " + ret
+		c = c.Parent()
+	}
+
+	return
 }
 
 func generateDescriptionTemplate(description string) string {
