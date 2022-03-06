@@ -85,9 +85,9 @@ func CheckForUpdates() error {
 			case "windows":
 				format += pterm.Magenta(pterm.Sprintf(`iwr instl.sh/%s/windows | iex`, getRepoPath()))
 			case "darwin":
-				format += pterm.Magenta(pterm.Sprintf(`curl -sSL instl.sh/%s/macos | sudo bash`, getRepoPath()))
+				format += pterm.Magenta(pterm.Sprintf(`curl -sSL instl.sh/%s/macos | bash`, getRepoPath()))
 			default:
-				format += pterm.Magenta(pterm.Sprintf(`curl -sSL instl.sh/%s/linux | sudo bash`, getRepoPath()))
+				format += pterm.Magenta(pterm.Sprintf(`curl -sSL instl.sh/%s/linux | bash`, getRepoPath()))
 			}
 			pterm.Info.Printfln(format, rootCmd.Name(), pterm.Magenta(tagName))
 		}
