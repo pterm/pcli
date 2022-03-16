@@ -116,7 +116,7 @@ func generateMarkdownTree(cmd *cobra.Command) (md string) {
 	}
 	pterm.DisableColor()
 	if cmd.CommandPath() != rootCmd.CommandPath() {
-		md += pterm.Sprintfln("# ... %s", strings.TrimSpace(strings.TrimLeft(cmd.CommandPath(), rootCmd.Use)))
+		md += pterm.Sprintfln("# ... %s", strings.TrimSpace(strings.TrimPrefix(cmd.CommandPath(), rootCmd.Use)))
 		md += pterm.Sprintfln("`%s`", cmd.CommandPath())
 	} else {
 		md += pterm.Sprintfln("# %s", cmd.CommandPath())
